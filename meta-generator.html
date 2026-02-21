@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Titulek & Popisek Generátor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .info-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #555;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+            min-height: 200px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-box {
+            background: #f9fafb;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .char-count {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .char-count.warning {
+            color: #f59e0b;
+        }
+
+        .char-count.error {
+            color: #ef4444;
+        }
+
+        .char-count.success {
+            color: #10b981;
+        }
+
+        .result-text {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #333;
+            word-wrap: break-word;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            display: none;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .copy-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #059669;
+        }
+
+        .error-message {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c00;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .seo-check-results {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .seo-overview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .seo-score {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .seo-score-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .seo-status {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        .status-excellent {
+            background: #10b981;
+        }
+
+        .status-good {
+            background: #3b82f6;
+        }
+
+        .status-fair {
+            background: #f59e0b;
+        }
+
+        .status-poor {
+            background: #ef4444;
+        }
+
+        .seo-sections {
+            display: grid;
+            gap: 20px;
+        }
+
+        .seo-section {
+            background: #f9fafb;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .seo-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .seo-section.recommendations {
+            background: #fef3c7;
+            border-color: #fbbf24;
+        }
+
+        .section-title {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-content {
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .check-item {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .check-item.success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+        }
+
+        .check-item.warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .check-item.error {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+        }
+
+        .check-item.info {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .check-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .check-text {
+            flex: 1;
+        }
+
+        .check-text strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 5px 0;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .heading-list {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .heading-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-left: 3px solid #667eea;
+            background: #f0f4ff;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .recommendation-list {
+            list-style: none;
+        }
+
+        .recommendation-list li {
+            padding: 10px 15px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #fbbf24;
+            display: flex;
+            align-items: start;
+            gap: 10px;
+        }
+
+        .recommendation-list li:before {
+            content: "💡";
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Meta Titulek & Popisek Generátor</h1>
+        <p class="subtitle">Generování SEO meta tagů s respektováním EEAT principů</p>
+
+        <div class="info-box">
+            <h3>📋 Pravidla generování:</h3>
+            <ul>
+                <li><strong>EEAT:</strong> Experience, Expertise, Authoritativeness, Trustworthiness</li>
+                <li><strong>Meta titulek:</strong> max. 60 znaků (ideální pro Google)</li>
+                <li><strong>Meta popisek:</strong> max. 160 znaků (ideální pro Google)</li>
+            </ul>
+        </div>
+
+        <div class="input-section">
+            <label for="articleText">Vlož text článku:</label>
+            <textarea 
+                id="articleText" 
+                placeholder="Vlož zde text tvého článku, ze kterého se vygenerují meta tagy...&#10;&#10;Čím více kontextu poskytuješ, tím lepší budou výsledky!"
+            ></textarea>
+        </div>
+
+        <div class="button-container">
+            <button id="generateBtn" onclick="generateMeta()">✨ Generovat Meta Tagy</button>
+            <button id="checkBtn" onclick="checkSEO()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); margin-left: 15px;">🔍 SEO Check</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generuji meta tagy...</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="seo-check-results" id="seoCheckResults" style="display: none;">
+            <h2 style="color: #667eea; margin-bottom: 20px; text-align: center;">📊 SEO Analýza Článku</h2>
+            
+            <div class="seo-overview" id="seoOverview">
+                <!-- Overall score will be inserted here -->
+            </div>
+
+            <div class="seo-sections">
+                <div class="seo-section">
+                    <h3 class="section-title">🎯 EEAT Analýza</h3>
+                    <div id="eeatAnalysis" class="section-content"></div>
+                </div>
+
+                <div class="seo-section">
+                    <h3 class="section-title">📑 Struktura Nadpisů</h3>
+                    <div id="headingStructure" class="section-content"></div>
+                </div>
+
+                <div class="seo-section">
+                    <h3 class="section-title">📝 Kvalita Obsahu</h3>
+                    <div id="contentQuality" class="section-content"></div>
+                </div>
+
+                <div class="seo-section">
+                    <h3 class="section-title">🔑 Klíčová Slova</h3>
+                    <div id="keywordAnalysis" class="section-content"></div>
+                </div>
+
+                <div class="seo-section recommendations">
+                    <h3 class="section-title">💡 Doporučení</h3>
+                    <div id="recommendations" class="section-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <div class="result-box">
+                <h3>
+                    📌 Meta Titulek
+                    <span class="char-count" id="titleCount"></span>
+                </h3>
+                <div class="result-text" id="metaTitle"></div>
+                <button class="copy-btn" onclick="copyToClipboard('metaTitle')">📋 Kopírovat</button>
+            </div>
+
+            <div class="result-box">
+                <h3>
+                    📝 Meta Popisek
+                    <span class="char-count" id="descCount"></span>
+                </h3>
+                <div class="result-text" id="metaDescription"></div>
+                <button class="copy-btn" onclick="copyToClipboard('metaDescription')">📋 Kopírovat</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function generateMeta() {
+            const articleText = document.getElementById('articleText').value.trim();
+            const generateBtn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Reset
+            errorMessage.style.display = 'none';
+            results.style.display = 'none';
+
+            if (!articleText) {
+                showError('Prosím, vlož text článku!');
+                return;
+            }
+
+            if (articleText.length < 50) {
+                showError('Text článku je příliš krátký. Vlož alespoň 50 znaků pro kvalitní generování.');
+                return;
+            }
+
+            // Show loading
+            generateBtn.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1000,
+                        messages: [{
+                            role: 'user',
+                            content: `Na základě následujícího textu článku vygeneruj:
+1. Meta titulek (max 60 znaků)
+2. Meta popisek (max 160 znaků)
+
+Respektuj EEAT principy (Experience, Expertise, Authoritativeness, Trustworthiness).
+Meta titulek by měl být přitažlivý, výstižný a obsahovat klíčová slova.
+Meta popisek by měl být poutavý, informativní a motivovat ke kliknutí.
+
+Text článku:
+${articleText}
+
+Odpověz POUZE ve formátu JSON bez jakéhokoliv dalšího textu:
+{
+  "title": "zde bude meta titulek",
+  "description": "zde bude meta popisek"
+}`
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Chyba při komunikaci s API');
+                }
+
+                const data = await response.json();
+                const textContent = data.content.find(item => item.type === 'text')?.text;
+                
+                if (!textContent) {
+                    throw new Error('Nepodařilo se získat odpověď z API');
+                }
+
+                // Parse JSON response
+                const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) {
+                    throw new Error('Nepodařilo se parsovat odpověď');
+                }
+
+                const result = JSON.parse(jsonMatch[0]);
+
+                // Display results
+                displayResults(result.title, result.description);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Nastala chyba při generování. Zkus to prosím znovu.');
+            } finally {
+                generateBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        async function checkSEO() {
+            const articleText = document.getElementById('articleText').value.trim();
+            const checkBtn = document.getElementById('checkBtn');
+            const loading = document.getElementById('loading');
+            const seoCheckResults = document.getElementById('seoCheckResults');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Reset
+            errorMessage.style.display = 'none';
+            seoCheckResults.style.display = 'none';
+
+            if (!articleText) {
+                showError('Prosím, vlož text článku pro SEO kontrolu!');
+                return;
+            }
+
+            if (articleText.length < 100) {
+                showError('Text článku je příliš krátký pro smysluplnou SEO analýzu. Vlož alespoň 100 znaků.');
+                return;
+            }
+
+            // Show loading
+            checkBtn.disabled = true;
+            loading.style.display = 'block';
+            loading.querySelector('p').textContent = 'Provádím SEO analýzu...';
+
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 3000,
+                        messages: [{
+                            role: 'user',
+                            content: `Proveď detailní SEO analýzu následujícího článku. Zaměř se na:
+
+1. EEAT (Experience, Expertise, Authoritativeness, Trustworthiness) - hodnocení 0-100
+2. Strukturu nadpisů (H1, H2, H3, atd.) - zda jsou správně použity
+3. Kvalitu obsahu (délka, čitelnost, klíčová slova)
+4. Konkrétní doporučení pro zlepšení
+
+Text článku:
+${articleText}
+
+Odpověz POUZE ve formátu JSON bez jakéhokoliv dalšího textu:
+{
+  "overall_score": 85,
+  "overall_status": "good",
+  "eeat": {
+    "score": 80,
+    "experience": {"status": "success/warning/error", "message": "hodnocení"},
+    "expertise": {"status": "success/warning/error", "message": "hodnocení"},
+    "authoritativeness": {"status": "success/warning/error", "message": "hodnocení"},
+    "trustworthiness": {"status": "success/warning/error", "message": "hodnocení"}
+  },
+  "headings": {
+    "status": "success/warning/error",
+    "h1_count": 1,
+    "structure": ["H1: Hlavní nadpis", "H2: Podnadpis"],
+    "issues": ["seznam problémů nebo prázdné pole"]
+  },
+  "content": {
+    "word_count": 500,
+    "readability": "good",
+    "keyword_density": "appropriate",
+    "checks": [
+      {"type": "success/warning/error", "message": "kontrola 1"},
+      {"type": "success/warning/error", "message": "kontrola 2"}
+    ]
+  },
+  "keywords": {
+    "primary": ["klíčové", "slovo"],
+    "density_ok": true,
+    "message": "hodnocení klíčových slov"
+  },
+  "recommendations": [
+    "doporučení 1",
+    "doporučení 2",
+    "doporučení 3"
+  ]
+}`
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Chyba při komunikaci s API');
+                }
+
+                const data = await response.json();
+                const textContent = data.content.find(item => item.type === 'text')?.text;
+                
+                if (!textContent) {
+                    throw new Error('Nepodařilo se získat odpověď z API');
+                }
+
+                // Parse JSON response
+                const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) {
+                    throw new Error('Nepodařilo se parsovat odpověď');
+                }
+
+                const result = JSON.parse(jsonMatch[0]);
+
+                // Display SEO check results
+                displaySEOResults(result);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Nastala chyba při SEO analýze. Zkus to prosím znovu.');
+            } finally {
+                checkBtn.disabled = false;
+                loading.style.display = 'none';
+                loading.querySelector('p').textContent = 'Generuji meta tagy...';
+            }
+        }
+
+        function displaySEOResults(data) {
+            const seoCheckResults = document.getElementById('seoCheckResults');
+            
+            // Overall Score
+            const statusClass = data.overall_status === 'excellent' ? 'status-excellent' :
+                               data.overall_status === 'good' ? 'status-good' :
+                               data.overall_status === 'fair' ? 'status-fair' : 'status-poor';
+            
+            const statusText = data.overall_status === 'excellent' ? 'Vynikající' :
+                              data.overall_status === 'good' ? 'Dobré' :
+                              data.overall_status === 'fair' ? 'Průměrné' : 'Ke zlepšení';
+
+            document.getElementById('seoOverview').innerHTML = `
+                <div class="seo-score">${data.overall_score}/100</div>
+                <div class="seo-score-label">Celkové SEO Skóre</div>
+                <div class="seo-status ${statusClass}">${statusText}</div>
+            `;
+
+            // EEAT Analysis
+            const eeatHTML = `
+                <div class="check-item ${data.eeat.experience.status}">
+                    <span class="check-icon">${getIcon(data.eeat.experience.status)}</span>
+                    <div class="check-text">
+                        <strong>Experience (Zkušenost)</strong>
+                        ${data.eeat.experience.message}
+                    </div>
+                </div>
+                <div class="check-item ${data.eeat.expertise.status}">
+                    <span class="check-icon">${getIcon(data.eeat.expertise.status)}</span>
+                    <div class="check-text">
+                        <strong>Expertise (Odbornost)</strong>
+                        ${data.eeat.expertise.message}
+                    </div>
+                </div>
+                <div class="check-item ${data.eeat.authoritativeness.status}">
+                    <span class="check-icon">${getIcon(data.eeat.authoritativeness.status)}</span>
+                    <div class="check-text">
+                        <strong>Authoritativeness (Autorita)</strong>
+                        ${data.eeat.authoritativeness.message}
+                    </div>
+                </div>
+                <div class="check-item ${data.eeat.trustworthiness.status}">
+                    <span class="check-icon">${getIcon(data.eeat.trustworthiness.status)}</span>
+                    <div class="check-text">
+                        <strong>Trustworthiness (Důvěryhodnost)</strong>
+                        ${data.eeat.trustworthiness.message}
+                    </div>
+                </div>
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">${data.eeat.score}</div>
+                        <div class="metric-label">EEAT Skóre</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('eeatAnalysis').innerHTML = eeatHTML;
+
+            // Heading Structure
+            const headingsHTML = `
+                <div class="check-item ${data.headings.status}">
+                    <span class="check-icon">${getIcon(data.headings.status)}</span>
+                    <div class="check-text">
+                        <strong>Celkové hodnocení struktury</strong>
+                        ${data.headings.issues.length === 0 ? 'Struktura nadpisů je v pořádku' : 'Nalezeny problémy ve struktuře'}
+                    </div>
+                </div>
+                ${data.headings.issues.length > 0 ? `
+                    <div class="check-item warning">
+                        <span class="check-icon">⚠️</span>
+                        <div class="check-text">
+                            <strong>Problémy:</strong>
+                            <ul style="margin: 8px 0 0 20px;">
+                                ${data.headings.issues.map(issue => `<li>${issue}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                ` : ''}
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">${data.headings.h1_count}</div>
+                        <div class="metric-label">H1 Nadpisů</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${data.headings.structure.length}</div>
+                        <div class="metric-label">Celkem Nadpisů</div>
+                    </div>
+                </div>
+                ${data.headings.structure.length > 0 ? `
+                    <div class="heading-list">
+                        ${data.headings.structure.map(h => `<div class="heading-item">${h}</div>`).join('')}
+                    </div>
+                ` : ''}
+            `;
+            document.getElementById('headingStructure').innerHTML = headingsHTML;
+
+            // Content Quality
+            const contentHTML = `
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">${data.content.word_count}</div>
+                        <div class="metric-label">Počet Slov</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${data.content.readability === 'good' ? '✓' : '⚠️'}</div>
+                        <div class="metric-label">Čitelnost</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${data.content.keyword_density === 'appropriate' ? '✓' : '⚠️'}</div>
+                        <div class="metric-label">Hustota Klíčových Slov</div>
+                    </div>
+                </div>
+                ${data.content.checks.map(check => `
+                    <div class="check-item ${check.type}">
+                        <span class="check-icon">${getIcon(check.type)}</span>
+                        <div class="check-text">${check.message}</div>
+                    </div>
+                `).join('')}
+            `;
+            document.getElementById('contentQuality').innerHTML = contentHTML;
+
+            // Keywords
+            const keywordsHTML = `
+                <div class="check-item ${data.keywords.density_ok ? 'success' : 'warning'}">
+                    <span class="check-icon">${data.keywords.density_ok ? '✓' : '⚠️'}</span>
+                    <div class="check-text">
+                        <strong>Hustota klíčových slov</strong>
+                        ${data.keywords.message}
+                    </div>
+                </div>
+                ${data.keywords.primary.length > 0 ? `
+                    <div class="check-item info">
+                        <span class="check-icon">🔑</span>
+                        <div class="check-text">
+                            <strong>Identifikovaná klíčová slova:</strong>
+                            <div style="margin-top: 8px;">
+                                ${data.keywords.primary.map(kw => `<span style="display: inline-block; background: #667eea; color: white; padding: 4px 12px; border-radius: 15px; margin: 4px; font-size: 0.9rem;">${kw}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+            document.getElementById('keywordAnalysis').innerHTML = keywordsHTML;
+
+            // Recommendations
+            const recommendationsHTML = `
+                <ul class="recommendation-list">
+                    ${data.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                </ul>
+            `;
+            document.getElementById('recommendations').innerHTML = recommendationsHTML;
+
+            // Show results
+            seoCheckResults.style.display = 'block';
+            seoCheckResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function getIcon(status) {
+            switch(status) {
+                case 'success': return '✓';
+                case 'warning': return '⚠️';
+                case 'error': return '✗';
+                case 'info': return 'ℹ️';
+                default: return '•';
+            }
+        }
+
+        async function generateMeta() {
+            const articleText = document.getElementById('articleText').value.trim();
+            const generateBtn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Reset
+            errorMessage.style.display = 'none';
+            results.style.display = 'none';
+
+            if (!articleText) {
+                showError('Prosím, vlož text článku!');
+                return;
+            }
+
+            if (articleText.length < 50) {
+                showError('Text článku je příliš krátký. Vlož alespoň 50 znaků pro kvalitní generování.');
+                return;
+            }
+
+            // Show loading
+            generateBtn.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1000,
+                        messages: [{
+                            role: 'user',
+                            content: `Na základě následujícího textu článku vygeneruj:
+1. Meta titulek (max 60 znaků)
+2. Meta popisek (max 160 znaků)
+
+Respektuj EEAT principy (Experience, Expertise, Authoritativeness, Trustworthiness).
+Meta titulek by měl být přitažlivý, výstižný a obsahovat klíčová slova.
+Meta popisek by měl být poutavý, informativní a motivovat ke kliknutí.
+
+Text článku:
+${articleText}
+
+Odpověz POUZE ve formátu JSON bez jakéhokoliv dalšího textu:
+{
+  "title": "zde bude meta titulek",
+  "description": "zde bude meta popisek"
+}`
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Chyba při komunikaci s API');
+                }
+
+                const data = await response.json();
+                const textContent = data.content.find(item => item.type === 'text')?.text;
+                
+                if (!textContent) {
+                    throw new Error('Nepodařilo se získat odpověď z API');
+                }
+
+                // Parse JSON response
+                const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) {
+                    throw new Error('Nepodařilo se parsovat odpověď');
+                }
+
+                const result = JSON.parse(jsonMatch[0]);
+
+                // Display results
+                displayResults(result.title, result.description);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Nastala chyba při generování. Zkus to prosím znovu.');
+            } finally {
+                generateBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayResults(title, description) {
+            const metaTitle = document.getElementById('metaTitle');
+            const metaDescription = document.getElementById('metaDescription');
+            const titleCount = document.getElementById('titleCount');
+            const descCount = document.getElementById('descCount');
+            const results = document.getElementById('results');
+
+            metaTitle.textContent = title;
+            metaDescription.textContent = description;
+
+            // Update character counts with styling
+            const titleLength = title.length;
+            const descLength = description.length;
+
+            titleCount.textContent = `${titleLength}/60 znaků`;
+            titleCount.className = 'char-count';
+            if (titleLength > 60) {
+                titleCount.classList.add('error');
+            } else if (titleLength > 55) {
+                titleCount.classList.add('warning');
+            } else {
+                titleCount.classList.add('success');
+            }
+
+            descCount.textContent = `${descLength}/160 znaků`;
+            descCount.className = 'char-count';
+            if (descLength > 160) {
+                descCount.classList.add('error');
+            } else if (descLength > 150) {
+                descCount.classList.add('warning');
+            } else {
+                descCount.classList.add('success');
+            }
+
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Visual feedback
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Zkopírováno!';
+                btn.style.background = '#059669';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#10b981';
+                }, 2000);
+            }).catch(err => {
+                console.error('Chyba při kopírování:', err);
+                showError('Nepodařilo se zkopírovat do schránky');
+            });
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Allow Enter key to trigger generation (Ctrl+Enter)
+        document.getElementById('articleText').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                generateMeta();
+            }
+        });
+    </script>
+</body>
+</html>
